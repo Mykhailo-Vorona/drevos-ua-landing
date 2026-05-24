@@ -317,7 +317,8 @@ h1 span {
   }
 
   .bullets {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 14px;
   }
 
   .cta-row {
@@ -3298,6 +3299,25 @@ body.modal-open {
 
   h1 {
     font-size: 24px !important;
+    text-align: center;
+    line-height: 1.1;
+  }
+
+  /* Add ~2mm gap between h1 lines on mobile */
+  h1 br + span,
+  h1 span + span {
+    margin-top: 8px;
+    display: inline-block;
+  }
+
+  /* Hero copy centered on mobile */
+  .hero-copy {
+    text-align: center;
+  }
+
+  .hero-copy .lead,
+  .hero-copy > p {
+    text-align: center;
   }
 
   h2 {
@@ -3480,8 +3500,12 @@ body.modal-open {
 
 @media (max-width: 768px) {
   .bullets {
-    grid-template-columns: 1fr;
-    gap: 16px;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px 14px !important;
+  }
+
+  .bullets > * {
+    font-size: 12px !important;
   }
 }
 
