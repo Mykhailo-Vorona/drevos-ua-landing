@@ -173,11 +173,28 @@ h1 span {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  /* Reset button defaults so <button> looks like <a> */
+  border: 0;
+  cursor: pointer;
+  font-family: inherit;
+  color: #fff;
+  text-decoration: none;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 .primary {
   background: #ff5a1f;
+  color: #fff;
   box-shadow: 0 16px 40px rgba(255,90,31,0.20);
+}
+
+.primary:hover {
+  background: #ff7544;
+}
+
+.primary:active {
+  background: #e84a14;
 }
 
 .secondary {
