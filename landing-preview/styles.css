@@ -321,8 +321,18 @@ h1 span {
 
   .hero-inner {
     grid-template-columns: 1fr;
-    padding: 14px 14px 24px;
-    gap: 16px;
+    padding: 6px 14px 16px;
+    gap: 10px;
+  }
+
+  /* Hide "Власне виробництво з 2015 року" badge on mobile (moved to video card) */
+  .hero-copy .badge {
+    display: none;
+  }
+
+  /* Tight gap between header and h1 */
+  main {
+    padding-top: 48px !important;
   }
 
   h1 {
@@ -354,22 +364,43 @@ h1 span {
     padding: 12px 14px;
     gap: 12px;
     border-radius: 20px;
+    align-items: center;
   }
 
-  .play {
-    width: 40px;
-    height: 40px;
-    font-size: 18px;
+  .video-card .play {
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px;
+    font-size: 18px !important;
+    background: rgba(255,90,31,0.22) !important;
+    color: #ff5a1f !important;
+    border-radius: 999px;
+    display: grid !important;
+    place-items: center;
+    flex-shrink: 0;
+  }
+
+  .video-card-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
   }
 
   .video-card strong {
-    font-size: 13px !important;
+    display: block;
+    font-size: 12px !important;
     letter-spacing: 0.02em;
+    line-height: 1.2;
+    text-transform: uppercase;
+    color: #fff;
   }
 
-  .video-card span {
-    margin-top: 3px;
-    font-size: 11px !important;
+  .video-card .video-card-sub {
+    margin: 0 !important;
+    font-size: 10px !important;
+    color: #b8b8c3 !important;
+    display: block;
   }
 
   .mobile-bar {
@@ -3315,9 +3346,12 @@ body.modal-open {
   }
 
   h1 {
-    font-size: 24px !important;
+    font-size: clamp(26px, 7.3vw, 34px) !important;
     text-align: center;
-    line-height: 1.1;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    word-spacing: -0.05em;
+    margin: 0 !important;
   }
 
   /* Add ~2mm gap between h1 lines on mobile */
@@ -3325,6 +3359,11 @@ body.modal-open {
   h1 span + span {
     margin-top: 8px;
     display: inline-block;
+  }
+
+  .hero-copy .lead {
+    font-size: 12px !important;
+    margin: 8px 0 !important;
   }
 
   /* Hero copy centered on mobile */
