@@ -361,23 +361,27 @@ h1 span {
   }
 
   .video-card {
-    padding: 12px 14px;
-    gap: 12px;
-    border-radius: 20px;
+    padding: 14px 16px;
+    gap: 14px;
+    border-radius: 18px;
     align-items: center;
+    border: 1px solid rgba(255,90,31,0.4) !important;
+    background: linear-gradient(90deg, rgba(255,90,31,0.22), rgba(255,90,31,0.06)) !important;
   }
 
   .video-card .play {
-    width: 44px !important;
-    height: 44px !important;
-    min-width: 44px;
-    font-size: 18px !important;
-    background: rgba(255,90,31,0.22) !important;
-    color: #ff5a1f !important;
+    width: 52px !important;
+    height: 52px !important;
+    min-width: 52px;
+    font-size: 22px !important;
+    background: #ff5a1f !important;
+    color: #fff !important;
     border-radius: 999px;
     display: grid !important;
     place-items: center;
     flex-shrink: 0;
+    padding-left: 3px;
+    box-shadow: 0 4px 16px rgba(255,90,31,0.45);
   }
 
   .video-card-text {
@@ -2963,43 +2967,61 @@ body.modal-open {
   /* Reduce gap between certificates section and footer */
   .certificates-section + .site-footer,
   .site-footer {
-    padding: 10px 12px calc(60px + env(safe-area-inset-bottom));
+    padding: 8px 12px calc(56px + env(safe-area-inset-bottom));
     margin-top: 0;
+  }
+
+  /* Hide white Drevos logo at footer top on mobile */
+  .footer-logo,
+  .footer-inner > .footer-logo {
+    display: none !important;
   }
 
   .footer-heading {
     grid-template-columns: 1fr;
-    gap: 4px;
-    margin-bottom: 10px;
+    gap: 2px;
+    margin-bottom: 8px;
+    margin-top: 0;
     text-align: center;
   }
 
   .footer-heading h2 {
-    font-size: 16px !important;
+    font-size: 14px !important;
     text-align: center;
     justify-self: center;
+    margin: 0;
+    padding: 0;
+  }
+
+  .footer-line {
+    display: none;
   }
 
   .footer-grid {
     grid-template-columns: 1fr;
-    gap: 8px;
+    gap: 6px;
   }
 
   .footer-column {
     text-align: left;
-    padding: 10px 12px;
-    background: rgba(255,255,255,0.02);
+    padding: 8px 10px;
+    background: rgba(255,255,255,0.025);
     border: 1px solid rgba(255,255,255,0.06);
     border-radius: 10px;
   }
 
   .footer-column h3 {
-    margin-bottom: 6px;
+    margin: 0 0 6px;
     text-align: center;
     font-size: 11px !important;
     color: #ff8a4f;
     text-transform: uppercase;
     letter-spacing: 0.06em;
+    font-weight: 800;
+  }
+
+  .footer-column > * + * {
+    margin-top: 4px;
   }
 
   /* List row — icon LEFT + text RIGHT (grid layout) */
@@ -3143,10 +3165,23 @@ body.modal-open {
   }
 
   .footer-bottom {
-    margin-top: 10px !important;
-    padding-top: 8px !important;
-    font-size: 10px !important;
-    line-height: 1.4;
+    margin-top: 8px !important;
+    padding-top: 6px !important;
+    font-size: 9px !important;
+    line-height: 1.35;
+    text-align: center;
+    color: rgba(255,255,255,0.5);
+  }
+
+  /* Tighten phone numbers spacing */
+  .footer-phones {
+    gap: 1px !important;
+  }
+
+  /* Reduce dashed separator margin */
+  .footer-list-row + .footer-list-row {
+    margin-top: 5px !important;
+    padding-top: 5px !important;
   }
 }
 
