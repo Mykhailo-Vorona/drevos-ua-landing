@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Drevos Quiz — Знайдемо вашу ідеальну коптильню</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: #0d0d17;
+      color: #fff;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;
+      line-height: 1.6;
+    }
+
+    .quiz-wrapper {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: linear-gradient(180deg, #0d0d17 0%, #1a1a24 100%);
+    }
+
+    .quiz-container {
+      width: 100%;
+      max-width: 900px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,90,31,0.2);
+      border-radius: 24px;
+      padding: 60px 50px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+
+    /* Header */
+    .quiz-header {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+
+    .quiz-header h1 {
+      margin: 0 0 16px;
+      font-size: clamp(32px, 5vw, 48px);
+      font-weight: 1000;
+      letter-spacing: -0.04em;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, #fff 0%, #ffa56e 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .quiz-header p {
+      margin: 0 0 24px;
+      color: #c6c6d2;
+      font-size: 18px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .quiz-badges {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 32px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      background: rgba(255,90,31,0.15);
+      border: 1px solid rgba(255,90,31,0.3);
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #ffa56e;
+    }
+
+    .social-proof {
+      text-align: center;
+      color: #8f8f9d;
+      font-size: 13px;
+      margin-bottom: 32px;
+    }
+
+    .social-proof strong {
+      color: #ffa56e;
+      font-weight: 900;
+    }
+
+    /* Progress Bar */
+    .quiz-progress {
+      width: 100%;
+      height: 8px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 50px;
+    }
+
+    .quiz-progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #ff5a1f 0%, #ffa56e 100%);
+      transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      border-radius: 999px;
+      box-shadow: 0 0 20px rgba(255,90,31,0.5);
+    }
+
+    .progress-text {
+      text-align: center;
+      font-size: 12px;
+      color: #8f8f9d;
+      margin-top: 8px;
+      margin-bottom: 32px;
+    }
+
+    /* Questions */
+    .quiz-questions {
+      min-height: 400px;
+      position: relative;
+    }
+
+    .quiz-question {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.3s ease;
+      pointer-events: none;
+      position: absolute;
+      width: 100%;
+    }
+
+    .quiz-question.active {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+      position: relative;
+      animation: slideIn 0.4s ease;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .quiz-question h2 {
+      margin: 0 0 32px;
+      font-size: clamp(24px, 3vw, 36px);
+      font-weight: 1000;
+      letter-spacing: -0.04em;
+    }
+
+    .quiz-step {
+      font-size: 13px;
+      color: #ffa56e;
+      font-weight: 900;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+
+    /* Options Grid */
+    .quiz-options {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+
+    .quiz-option {
+      padding: 28px 24px;
+      border: 2px solid rgba(255,255,255,0.12);
+      border-radius: 16px;
+      background: rgba(255,255,255,0.02);
+      color: #fff;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      text-align: center;
+      font-weight: 700;
+      font-size: 15px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .quiz-option::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,90,31,0.1) 0%, transparent 100%);
+      opacity: 0;
+      transition: opacity 0.25s ease;
+      z-index: 0;
+    }
+
+    .quiz-option-content {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .quiz-option-icon {
+      font-size: 32px;
+      line-height: 1;
+      transition: transform 0.25s ease;
+    }
+
+    .quiz-option-text {
+      display: block;
+    }
+
+    .quiz-option-subtext {
+      font-size: 12px;
+      color: #8f8f9d;
+      font-weight: 500;
+      margin-top: 4px;
+    }
+
+    .quiz-option:hover {
+      border-color: rgba(255,90,31,0.4);
+      background: rgba(255,90,31,0.08);
+      transform: translateY(-4px);
+    }
+
+    .quiz-option:hover::before {
+      opacity: 1;
+    }
+
+    .quiz-option:hover .quiz-option-icon {
+      transform: scale(1.15);
+    }
+
+    .quiz-option.selected {
+      border-color: #ff5a1f;
+      background: rgba(255,90,31,0.2);
+      color: #ffa56e;
+    }
+
+    .quiz-option.selected::after {
+      content: '✓';
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      font-size: 20px;
+      color: #ff5a1f;
+      font-weight: 900;
+      animation: checkPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes checkPop {
+      0% {
+        transform: scale(0) rotate(-180deg);
+        opacity: 0;
+      }
+      100% {
+        transform: scale(1) rotate(0);
+        opacity: 1;
+      }
+    }
+
+    /* Results Screen */
+    .quiz-results {
+      display: none;
+      text-align: center;
+      animation: fadeIn 0.5s ease;
+    }
+
+    .quiz-results.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .results-icon {
+      font-size: 80px;
+      margin-bottom: 24px;
+      animation: bounce 0.8s ease;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+
+    .results-title {
+      font-size: 32px;
+      font-weight: 1000;
+      margin-bottom: 16px;
+      color: #ffa56e;
+    }
+
+    .results-subtitle {
+      font-size: 16px;
+      color: #c6c6d2;
+      margin-bottom: 32px;
+    }
+
+    .recommendation-box {
+      background: linear-gradient(135deg, rgba(255,90,31,0.2) 0%, rgba(255,90,31,0.05) 100%);
+      border: 2px solid rgba(255,90,31,0.3);
+      border-radius: 18px;
+      padding: 32px;
+      margin-bottom: 32px;
+      text-align: left;
+    }
+
+    .recommendation-model {
+      font-size: 28px;
+      font-weight: 1000;
+      color: #ffa56e;
+      margin-bottom: 8px;
+    }
+
+    .recommendation-spec {
+      font-size: 14px;
+      color: #8f8f9d;
+      margin-bottom: 16px;
+    }
+
+    .recommendation-price {
+      font-size: 18px;
+      font-weight: 900;
+      color: #fff;
+      margin-bottom: 16px;
+      padding: 12px;
+      background: rgba(255,90,31,0.15);
+      border-radius: 8px;
+    }
+
+    .recommendation-reason {
+      font-size: 14px;
+      color: #c6c6d2;
+      line-height: 1.6;
+      font-style: italic;
+    }
+
+    /* Contact Form */
+    .contact-form {
+      margin-bottom: 32px;
+      text-align: left;
+    }
+
+    .contact-form h3 {
+      margin: 0 0 16px;
+      font-size: 18px;
+      font-weight: 900;
+      text-align: center;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #ffa56e;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 10px;
+      background: rgba(255,255,255,0.04);
+      color: #fff;
+      font-size: 14px;
+      font-family: inherit;
+      transition: all 0.25s ease;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: rgba(255,90,31,0.5);
+      background: rgba(255,90,31,0.1);
+    }
+
+    /* Buttons */
+    .quiz-actions {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      margin-top: 50px;
+    }
+
+    .btn {
+      min-height: 56px;
+      padding: 16px 32px;
+      border: none;
+      border-radius: 14px;
+      font-size: 15px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-next {
+      background: #ff5a1f;
+      color: #fff;
+      flex: 1;
+      max-width: 300px;
+      box-shadow: 0 12px 32px rgba(255,90,31,0.3);
+    }
+
+    .btn-next:hover {
+      background: #ff7a41;
+      transform: translateY(-2px);
+      box-shadow: 0 16px 40px rgba(255,90,31,0.4);
+    }
+
+    .btn-next:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-back {
+      background: transparent;
+      color: #ffa56e;
+      border: 2px solid rgba(255,90,31,0.3);
+    }
+
+    .btn-back:hover {
+      border-color: rgba(255,90,31,0.6);
+      background: rgba(255,90,31,0.1);
+    }
+
+    .btn-submit {
+      background: #ff5a1f;
+      color: #fff;
+      width: 100%;
+      max-width: 500px;
+      font-size: 16px;
+    }
+
+    .btn-submit:hover {
+      background: #ff7a41;
+      transform: translateY(-2px);
+    }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+      .quiz-container {
+        padding: 40px 24px;
+      }
+
+      .quiz-header {
+        margin-bottom: 40px;
+      }
+
+      .quiz-options {
+        grid-template-columns: 1fr;
+      }
+
+      .quiz-option {
+        padding: 24px 20px;
+      }
+
+      .quiz-actions {
+        flex-direction: column;
+      }
+
+      .btn-next,
+      .btn-submit {
+        max-width: 100%;
+      }
+
+      .recommendation-box {
+        padding: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="quiz-wrapper">
+    <div class="quiz-container">
+      <!-- Header -->
+      <div class="quiz-header">
+        <h1>Знайдемо вашу ідеальну коптильню</h1>
+        <p>Відповідайте щиро — ми дамо точну рекомендацію моделі з ціною</p>
+
+        <div class="quiz-badges">
+          <div class="badge">⏱️ 60 сек</div>
+          <div class="badge">🎁 Безкоштовна консультація</div>
+          <div class="badge">✅ Точна рекомендація</div>
+        </div>
+
+        <div class="social-proof">
+          ⭐⭐⭐⭐⭐ <strong>847 людей</strong> вже прошли квіз
+        </div>
+      </div>
+
+      <!-- Progress -->
+      <div class="quiz-progress">
+        <div class="quiz-progress-bar" id="progressBar"></div>
+      </div>
+      <div class="progress-text">
+        <span id="progressText">Крок 1 з 4 — 25% завершено</span>
+      </div>
+
+      <!-- Questions -->
+      <div class="quiz-questions">
+        <!-- Q1 -->
+        <div class="quiz-question active" data-question="1">
+          <div class="quiz-step">Крок 1 з 4</div>
+          <h2>Для чого вам коптильня?</h2>
+          <div class="quiz-options">
+            <button class="quiz-option" data-answer="home">
+              <div class="quiz-option-content">
+                <div class="quiz-option-icon">🏠</div>
+                <div class="quiz-option-text">Для дому</div>
+                <div class="quiz-option-subtext">Сім'я, дача, хобі</div>
+              </div>
+            </button>
+            <button class="quiz-option" data-answer="craft">
+              <div class="quiz-option-content">
+                <div class="quiz-option-icon">🎯</div>
+                <div class="quiz-option-text">Для бізнесу</div>
+                <div class="quiz-option-subtext">Комерційне використання</div>
+              </div>
+            </button>
+            <button class="quiz-option" data-answer="production">
+              <div class="quiz-option-content">
+                <div class="quiz-option-icon">🏭</div>
+                <div class="quiz-option-text">Для виробництва</div>
+                <div class="quiz-option-subtext">Масштабні обсяги</div>
+              </div>
+            </button>
+            <button class="quiz-option" data-answer="help">
+              <div class="quiz-option-content">
+                <div class="quiz-option-icon">❓</div>
+                <div class="quiz-option-text">Допоможіть, підібрати</div>
+                <div class="quiz-option-subtext">Не впевнений</div>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="quiz-question" data-question="2">
+          <div class="quiz-step">Крок 2 з 4</div>
+          <h2>Що плануєте готувати?</h2>
+          <div class="quiz-options">
+            <button class="quiz-option" data-answer="fish">
+              <div class="quiz-option-content">
+                <div class="quiz-option-icon">🐟</div>
+                <div class="quiz-option-text">Рибу</div>
+              </div>
+            </button>
+            <button class="quiz-option" data-answer="sausage">
+              <div class="quiz-option-content">
+                <div class="quiz-option-icon">🌭</div>
+                <div class="quiz-option-text">Колбасу</div>
+              </div>
+            </button>
+            <button class="quiz-option" data-answer="meat">
+              <div class="quiz-option-content">
+                <div class="quiz-option-icon">🍖</div>
+                <div class="quiz-option-text">М'ясо</div>
+              </div>
+            </button>
+            <button class="quiz-option" data-answer="all">
+              <div class="quiz-option-content">
+                <div class="quiz-option-icon">✨</div>
+                <div class="quiz-option-text">Всі підряд</div>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="quiz-question" data-question="3">
+          <div class="quiz-step">Крок 3 з 4</div>
+          <h2>Яке завантаження потрібне?</h2>
+          <div class="quiz-options">
+            <button class="quiz-option" data-answer="small">
+              <div class="quiz-option-content">
+                <div class="quiz-option-icon">📦</div>
+                <div class="quiz-option-text">До 10 кг</div>
+              </div>
+            </button>
+            <button class="quiz-option" data-answer="medium">
+              <div class="quiz-option-content">
+                <div class="quiz-option-icon">📦📦</div>
+                <div class="quiz-option-text">До 30 кг</div>
+              </div>
+            </button>
+            <button class="quiz-option" data-answer="large">
+              <div class="quiz-option-content">
+                <div class="quiz-option-icon">📦📦📦</div>
+                <div class="quiz-option-text">До 100 кг</div>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Q4 -->
+        <div class="quiz-question" data-question="4">
+          <div class="quiz-step">Крок 4 з 4</div>
+          <h2>Як з вами зв'язатися?</h2>
+          <div class="quiz-options">
+            <button class="quiz-option" data-answer="telegram">
+              <div class="quiz-option-content">
+                <div class="quiz-option-icon">📱</div>
+                <div class="quiz-option-text">Telegram</div>
+                <div class="quiz-option-subtext">Мгновенно</div>
+              </div>
+            </button>
+            <button class="quiz-option" data-answer="viber">
+              <div class="quiz-option-content">
+                <div class="quiz-option-icon">💬</div>
+                <div class="quiz-option-text">Viber</div>
+                <div class="quiz-option-subtext">Практично</div>
+              </div>
+            </button>
+            <button class="quiz-option" data-answer="email">
+              <div class="quiz-option-content">
+                <div class="quiz-option-icon">📧</div>
+                <div class="quiz-option-text">Email</div>
+                <div class="quiz-option-subtext">Офіційно</div>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Results -->
+      <div class="quiz-results" id="results">
+        <div class="results-icon">✨</div>
+        <div class="results-title">Готово!</div>
+        <div class="results-subtitle">Ось ваша ідеальна коптильня:</div>
+
+        <div class="recommendation-box" id="recommendationBox">
+          <div class="recommendation-model">🔥 Drevos Family PRO</div>
+          <div class="recommendation-spec">Вертикальна коптильня • Завантаження 20-25 кг</div>
+          <div class="recommendation-price">Ціна: $1,299 USD</div>
+          <div class="recommendation-reason" id="recommendationReason">
+            "Ідеально для вас, бо ви хочете готувати рибу та м'ясо для сім'ї з максимальною якістю"
+          </div>
+        </div>
+
+        <div class="contact-form">
+          <h3>Отримайте каталог з деталями</h3>
+          <form id="contactForm">
+            <div class="form-group">
+              <label>Ваше ім'я</label>
+              <input type="text" placeholder="Іван Петренко" required>
+            </div>
+            <div class="form-group">
+              <label>Ваш номер телефону</label>
+              <input type="tel" placeholder="+380 (97) 123-45-67" required>
+            </div>
+            <div class="form-group">
+              <label>Як з вами зв'язатися</label>
+              <select required id="contactMethod">
+                <option value="">Виберіть спосіб</option>
+                <option value="telegram">Telegram</option>
+                <option value="viber">Viber</option>
+                <option value="email">Email</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-submit">📧 Отримати каталог + рекомендацію</button>
+          </form>
+        </div>
+
+        <p style="color: #8f8f9d; font-size: 12px; margin-top: 24px;">
+          ✅ Менеджер напише вам протягом 5 хвилин<br>
+          🎁 + Безкоштовна консультація про запуск<br>
+          🚀 Швидка обробка замовлення
+        </p>
+      </div>
+
+      <!-- Actions -->
+      <div class="quiz-actions">
+        <button class="btn btn-back" id="backBtn" style="display: none;">← Назад</button>
+        <button class="btn btn-next" id="nextBtn">Далі →</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const quiz = {
+      currentQuestion: 1,
+      totalQuestions: 4,
+      answers: {},
+
+      init() {
+        this.bindEvents();
+      },
+
+      bindEvents() {
+        document.querySelectorAll('.quiz-option').forEach(btn => {
+          btn.addEventListener('click', (e) => this.selectAnswer(e.target.closest('.quiz-option')));
+        });
+
+        document.getElementById('nextBtn').addEventListener('click', () => this.nextQuestion());
+        document.getElementById('backBtn').addEventListener('click', () => this.prevQuestion());
+        document.getElementById('contactForm').addEventListener('submit', (e) => this.submitForm(e));
+      },
+
+      selectAnswer(btn) {
+        const question = btn.closest('.quiz-question');
+        document.querySelectorAll(`[data-question="${question.dataset.question}"] .quiz-option`).forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        this.answers[question.dataset.question] = btn.dataset.answer;
+
+        document.getElementById('nextBtn').disabled = false;
+      },
+
+      updateProgress() {
+        const percent = (this.currentQuestion / this.totalQuestions) * 100;
+        document.getElementById('progressBar').style.width = percent + '%';
+        document.getElementById('progressText').textContent = `Крок ${this.currentQuestion} з ${this.totalQuestions} — ${Math.round(percent)}% завершено`;
+      },
+
+      showQuestion(num) {
+        document.querySelectorAll('.quiz-question').forEach(q => q.classList.remove('active'));
+        document.querySelector(`[data-question="${num}"]`).classList.add('active');
+        document.getElementById('nextBtn').disabled = true;
+        document.getElementById('nextBtn').textContent = num === this.totalQuestions ? '✅ Отримати рекомендацію' : 'Далі →';
+        document.getElementById('backBtn').style.display = num > 1 ? 'block' : 'none';
+        this.updateProgress();
+      },
+
+      nextQuestion() {
+        if (this.currentQuestion < this.totalQuestions) {
+          this.currentQuestion++;
+          this.showQuestion(this.currentQuestion);
+        } else {
+          this.showResults();
+        }
+      },
+
+      prevQuestion() {
+        if (this.currentQuestion > 1) {
+          this.currentQuestion--;
+          this.showQuestion(this.currentQuestion);
+        }
+      },
+
+      showResults() {
+        document.querySelectorAll('.quiz-question').forEach(q => q.classList.remove('active'));
+        document.getElementById('results').classList.add('active');
+        document.querySelector('.quiz-actions').style.display = 'none';
+        this.generateRecommendation();
+      },
+
+      generateRecommendation() {
+        const recommendations = {
+          'home|fish|small|telegram': { model: '🔥 Drevos Family 20', price: '$899', spec: 'Компактна • 5-20 кг' },
+          'home|meat|medium|viber': { model: '🔥 Drevos Family PRO', price: '$1,299', spec: 'Вертикальна • 20-25 кг' },
+          'craft|sausage|large|email': { model: '🔥 Drevos Big PRO', price: '$2,499', spec: 'Професійна • 50-60 кг' },
+          'production|all|large|telegram': { model: '🔥 Drevos SK 100', price: '$4,999', spec: 'Індустріальна • 80-100 кг' },
+        };
+
+        const key = Object.keys(this.answers).sort().map(k => this.answers[k]).join('|');
+        const rec = recommendations[key] || { model: '🔥 Drevos Family PRO', price: '$1,299', spec: 'Універсальна • 20-25 кг' };
+
+        document.querySelector('.recommendation-model').textContent = rec.model;
+        document.querySelector('.recommendation-spec').textContent = rec.spec;
+        document.querySelector('.recommendation-price').textContent = `Ціна: ${rec.price}`;
+        document.getElementById('recommendationReason').textContent = `"На основі ваших відповідей, ця модель ідеально підійде для ${this.getReasonText()}"`;
+      },
+
+      getReasonText() {
+        const use = this.answers['1'];
+        const what = this.answers['2'];
+        return `${use === 'home' ? 'приватного користування' : 'комерційного використання'} з готуванням ${what}`;
+      },
+
+      submitForm(e) {
+        e.preventDefault();
+        alert('✅ Дякуємо! Менеджер напише вам протягом 5 хвилин!');
+        console.log('Form submitted:', this.answers);
+      }
+    };
+
+    quiz.init();
+  </script>
+</body>
+</html>

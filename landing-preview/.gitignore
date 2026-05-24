@@ -1,0 +1,12 @@
+# Build output
+dist/
+
+# OS
+.DS_Store
+
+# Backup
+*.bak
+
+# Editor
+.vscode/
+.idea/

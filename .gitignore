@@ -1,0 +1,20 @@
+# Build output
+landing-preview/dist/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Backup
+*.bak
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# Secrets
+.env
+.env.local
+*.key
+*.pem

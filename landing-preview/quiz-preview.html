@@ -1,0 +1,974 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Drevos Quiz Preview</title>
+  <style>
+    :root {
+      --bg: #0d0d17;
+      --panel: #171721;
+      --panel-strong: #20202b;
+      --text: #ffffff;
+      --muted: #c6c6d2;
+      --soft: #8c8c98;
+      --accent: #ff5a1f;
+      --accent-soft: #ffb18f;
+      --line: rgba(255,255,255,0.12);
+      font-family: Inter, Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(180deg, rgba(255,90,31,0.06), transparent 34%),
+        var(--bg);
+      color: var(--text);
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    .preview-shell {
+      width: min(1180px, calc(100% - 40px));
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: 48px 0;
+      display: grid;
+      align-items: center;
+    }
+
+    .quiz-preview {
+      display: grid;
+      grid-template-columns: minmax(280px, 0.9fr) minmax(0, 1.35fr);
+      min-height: 680px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(255,255,255,0.035);
+      box-shadow: 0 28px 80px rgba(0,0,0,0.32);
+    }
+
+    .quiz-side {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 34px;
+      border-right: 1px solid var(--line);
+      background:
+        linear-gradient(180deg, rgba(0,0,0,0.18), rgba(0,0,0,0.62)),
+        url("images/advantages/support.jpg") center / cover;
+    }
+
+    .quiz-side::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, rgba(13,13,23,0.82), rgba(13,13,23,0.56));
+    }
+
+    .quiz-side > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .brand {
+      color: var(--accent);
+      font-size: 26px;
+      font-weight: 1000;
+    }
+
+    .side-copy {
+      display: grid;
+      gap: 18px;
+      max-width: 360px;
+    }
+
+    .kicker {
+      color: var(--accent-soft);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+    }
+
+    h1,
+    h2,
+    p {
+      margin: 0;
+    }
+
+    h1 {
+      font-size: clamp(32px, 4vw, 56px);
+      line-height: 0.98;
+      letter-spacing: 0;
+      font-weight: 1000;
+    }
+
+    .side-copy p,
+    .trust-list {
+      color: #e4e4ec;
+      font-size: 16px;
+      line-height: 1.55;
+    }
+
+    .trust-list {
+      display: grid;
+      gap: 10px;
+      padding: 0;
+      margin: 0;
+      list-style: none;
+    }
+
+    .trust-list li {
+      display: grid;
+      grid-template-columns: 28px minmax(0, 1fr);
+      gap: 10px;
+      align-items: center;
+    }
+
+    .trust-list span {
+      display: grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 8px;
+      color: var(--accent-soft);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .quiz-card {
+      display: flex;
+      flex-direction: column;
+      padding: 34px;
+      background: linear-gradient(180deg, var(--panel), #11111b);
+    }
+
+    .quiz-top {
+      display: grid;
+      gap: 14px;
+      margin-bottom: 30px;
+    }
+
+    .progress-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .progress {
+      height: 8px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+    }
+
+    .progress-bar {
+      width: 25%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--accent), var(--accent-soft));
+      transition: width 0.28s ease;
+    }
+
+    .steps {
+      position: relative;
+      flex: 1;
+      min-height: 410px;
+    }
+
+    .step {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transform: translateY(12px);
+      pointer-events: none;
+      transition: opacity 0.22s ease, transform 0.22s ease;
+    }
+
+    .step.is-active {
+      position: relative;
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .step h2 {
+      margin-bottom: 10px;
+      font-size: clamp(26px, 3vw, 38px);
+      line-height: 1.08;
+      letter-spacing: 0;
+      font-weight: 1000;
+    }
+
+    .step-lead {
+      max-width: 620px;
+      margin-bottom: 24px;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    .options {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .option {
+      display: grid;
+      grid-template-columns: 48px minmax(0, 1fr);
+      gap: 14px;
+      align-items: center;
+      min-height: 104px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: rgba(255,255,255,0.035);
+      color: var(--text);
+      text-align: left;
+      cursor: pointer;
+      transition: border-color 0.18s ease, background 0.18s ease, transform 0.18s ease;
+    }
+
+    .option:hover {
+      border-color: rgba(255,90,31,0.48);
+      background: rgba(255,90,31,0.08);
+      transform: translateY(-2px);
+    }
+
+    .option.is-selected {
+      border-color: var(--accent);
+      background: rgba(255,90,31,0.16);
+    }
+
+    .option.has-visual {
+      grid-template-columns: 1fr;
+      gap: 12px;
+      align-items: start;
+      min-height: 214px;
+      padding: 12px;
+    }
+
+    .option-visual {
+      display: block;
+      width: 100%;
+      height: 112px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 10px;
+      background: linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.035));
+    }
+
+    .option-visual svg {
+      display: none;
+      width: 100%;
+      height: 100%;
+    }
+
+    .option-visual img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .option-mark {
+      display: grid;
+      place-items: center;
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.08);
+      color: var(--accent-soft);
+      font-size: 12px;
+      font-weight: 1000;
+      text-transform: uppercase;
+    }
+
+    .option-title {
+      display: block;
+      color: var(--text);
+      font-size: 16px;
+      line-height: 1.25;
+      font-weight: 900;
+    }
+
+    .option-text {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .contact-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .contact-methods {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .method {
+      display: grid;
+      place-items: center;
+      gap: 8px;
+      min-height: 86px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: rgba(255,255,255,0.035);
+      color: var(--text);
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .method-icon {
+      display: grid;
+      place-items: center;
+      width: 30px;
+      height: 30px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+    }
+
+    .method-icon svg {
+      display: block;
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
+    }
+
+    .method-icon-telegram {
+      background: #229ED9;
+    }
+
+    .method-icon-viber {
+      background: #7360F2;
+    }
+
+    .method-icon-phone {
+      background: rgba(255,90,31,0.18);
+      color: var(--accent-soft);
+    }
+
+    .method.is-selected {
+      border-color: var(--accent);
+      background: rgba(255,90,31,0.16);
+      color: var(--accent-soft);
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+    }
+
+    .field label {
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .field input {
+      width: 100%;
+      min-height: 56px;
+      padding: 0 16px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+      outline: none;
+    }
+
+    .field input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(255,90,31,0.16);
+    }
+
+    .helper {
+      min-height: 20px;
+      color: var(--soft);
+      font-size: 13px;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      margin-top: 26px;
+    }
+
+    .btn {
+      min-height: 52px;
+      padding: 0 22px;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      color: var(--text);
+      font-weight: 1000;
+      cursor: pointer;
+      transition: opacity 0.18s ease, transform 0.18s ease, background 0.18s ease;
+    }
+
+    .btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+    }
+
+    .btn:disabled {
+      cursor: not-allowed;
+      opacity: 0.42;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #ff7a3d);
+      box-shadow: 0 18px 46px rgba(255,90,31,0.22);
+    }
+
+    .btn-secondary {
+      border-color: var(--line);
+      background: rgba(255,255,255,0.045);
+    }
+
+    .result-screen {
+      display: none;
+      gap: 20px;
+      min-height: 410px;
+      align-content: center;
+    }
+
+    .result-screen.is-visible {
+      display: grid;
+    }
+
+    .result-card {
+      padding: 22px;
+      border: 1px solid rgba(255,90,31,0.32);
+      border-radius: 10px;
+      background: rgba(255,90,31,0.11);
+    }
+
+    .result-card strong {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--accent-soft);
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .result-card h2 {
+      font-size: clamp(28px, 4vw, 44px);
+      line-height: 1.05;
+    }
+
+    .result-card p {
+      margin-top: 12px;
+      color: #ececf2;
+      line-height: 1.55;
+    }
+
+    .result-summary {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .summary-item {
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: rgba(255,255,255,0.035);
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .summary-item b {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--text);
+      font-size: 14px;
+    }
+
+    @media (max-width: 900px) {
+      .preview-shell {
+        width: min(100% - 24px, 680px);
+        padding: 24px 0;
+      }
+
+      .quiz-preview {
+        grid-template-columns: 1fr;
+      }
+
+      .quiz-side {
+        min-height: 330px;
+        border-right: none;
+        border-bottom: 1px solid var(--line);
+      }
+    }
+
+    @media (max-width: 640px) {
+      .preview-shell {
+        width: 100%;
+        padding: 0;
+      }
+
+      .quiz-preview {
+        min-height: 100vh;
+        border: 0;
+        border-radius: 0;
+      }
+
+      .quiz-side,
+      .quiz-card {
+        padding: 22px;
+      }
+
+      .quiz-side {
+        min-height: 300px;
+      }
+
+      .options,
+      .contact-methods,
+      .result-summary {
+        grid-template-columns: 1fr;
+      }
+
+      .steps,
+      .result-screen {
+        min-height: 470px;
+      }
+
+      .option {
+        min-height: 88px;
+      }
+
+      .option.has-visual {
+        grid-template-columns: 96px minmax(0, 1fr);
+        min-height: 112px;
+        align-items: center;
+        padding: 12px;
+      }
+
+      .option-visual {
+        width: 96px;
+        height: 72px;
+      }
+
+      .actions {
+        position: sticky;
+        bottom: 0;
+        z-index: 2;
+        margin: 22px -22px -22px;
+        padding: 14px 22px calc(14px + env(safe-area-inset-bottom));
+        background: rgba(17,17,27,0.94);
+        border-top: 1px solid var(--line);
+        backdrop-filter: blur(12px);
+      }
+
+      .btn {
+        flex: 1;
+        padding: 0 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="preview-shell">
+    <section class="quiz-preview" data-quiz-preview>
+      <aside class="quiz-side">
+        <div class="brand">Drevos</div>
+        <div class="side-copy">
+          <div class="kicker">Підбір коптильні</div>
+          <h1>Коптильня під вашу задачу за 1 хвилину</h1>
+          <p>Після 4 відповідей отримаєте рекомендовану модель, комплектацію та актуальну ціну.</p>
+        </div>
+        <ul class="trust-list" aria-label="Що отримає клієнт">
+          <li><span>01</span> Рекомендована модель під ваш обсяг</li>
+          <li><span>02</span> Орієнтир по комплектації і запуску</li>
+          <li><span>03</span> Консультація без зайвих дзвінків</li>
+        </ul>
+      </aside>
+
+      <div class="quiz-card">
+        <div class="quiz-top">
+          <div class="progress-row">
+            <span data-progress-label>Крок 1 з 4</span>
+            <span data-progress-note>залишилось 3 питання</span>
+          </div>
+          <div class="progress" aria-hidden="true">
+            <div class="progress-bar" data-progress-bar></div>
+          </div>
+        </div>
+
+        <div class="steps" data-steps>
+          <div class="step is-active" data-step="1">
+            <h2>Для чого вам коптильня?</h2>
+            <p class="step-lead">Оберіть найближчий сценарій. Якщо поки не впевнені, можна вибрати допомогу з підбором.</p>
+            <div class="options">
+              <button class="option has-visual" type="button" data-answer="purpose" data-value="Для дому" data-model="Family 2.0">
+                <span class="option-visual option-visual-home" aria-hidden="true">
+                  <img src="images/quiz-preview/quiz-purpose-home.jpg" alt="" width="884" height="438" loading="eager" decoding="async">
+                  <svg viewBox="0 0 104 82" role="img">
+                    <rect width="104" height="82" fill="#19231f"/>
+                    <circle cx="82" cy="16" r="10" fill="#ffb18f"/>
+                    <rect x="8" y="41" width="88" height="26" rx="5" fill="#3f2a20"/>
+                    <rect x="17" y="34" width="70" height="10" rx="5" fill="#7a4b31"/>
+                    <path d="M19 35 L36 21 L53 35 Z" fill="#a8683d"/>
+                    <rect x="25" y="35" width="22" height="18" rx="2" fill="#d6a66c"/>
+                    <rect x="33" y="42" width="6" height="11" fill="#513023"/>
+                    <circle cx="52" cy="31" r="7" fill="#f2d1b3"/>
+                    <circle cx="66" cy="31" r="7" fill="#f2d1b3"/>
+                    <circle cx="59" cy="24" r="6" fill="#f2d1b3"/>
+                    <path d="M44 62 C49 49 70 49 75 62" fill="#ff7a3d"/>
+                    <path d="M18 67 H90" stroke="#8ccf7a" stroke-width="4" stroke-linecap="round"/>
+                    <circle cx="38" cy="52" r="4" fill="#ffc56f"/>
+                    <circle cx="51" cy="52" r="4" fill="#ffc56f"/>
+                    <circle cx="64" cy="52" r="4" fill="#ffc56f"/>
+                  </svg>
+                </span>
+                <span><b class="option-title">Для дому</b><span class="option-text">3-10 кг за раз для сімʼї, друзів або дачі</span></span>
+              </button>
+              <button class="option has-visual" type="button" data-answer="purpose" data-value="Для продажів" data-model="Classic 2.0">
+                <span class="option-visual option-visual-sales" aria-hidden="true">
+                  <img src="images/quiz-preview/quiz-purpose-sales.jpg" alt="" width="884" height="438" loading="eager" decoding="async">
+                  <svg viewBox="0 0 104 82" role="img">
+                    <rect width="104" height="82" fill="#1b2027"/>
+                    <rect x="8" y="50" width="88" height="18" rx="5" fill="#5c3927"/>
+                    <rect x="12" y="28" width="80" height="12" rx="3" fill="#ff7a3d"/>
+                    <path d="M12 28 H92 L86 18 H18 Z" fill="#f5d6a2"/>
+                    <path d="M14 29 L22 18 M31 29 L39 18 M48 29 L56 18 M65 29 L73 18 M82 29 L90 18" stroke="#c85b32" stroke-width="3"/>
+                    <circle cx="30" cy="40" r="7" fill="#f0c8a8"/>
+                    <path d="M21 60 C23 48 37 48 40 60" fill="#263746"/>
+                    <rect x="50" y="43" width="30" height="7" rx="3.5" fill="#b36a37"/>
+                    <rect x="54" y="55" width="28" height="6" rx="3" fill="#cf7b3f"/>
+                    <rect x="48" y="61" width="34" height="5" rx="2.5" fill="#e8a15d"/>
+                    <circle cx="88" cy="53" r="4" fill="#ffc56f"/>
+                    <circle cx="16" cy="53" r="4" fill="#ffc56f"/>
+                  </svg>
+                </span>
+                <span><b class="option-title">Для продажів</b><span class="option-text">невеликі партії для клієнтів, кафе або ярмарків</span></span>
+              </button>
+              <button class="option has-visual" type="button" data-answer="purpose" data-value="Для закладу або виробництва" data-model="Big 2.0">
+                <span class="option-visual option-visual-business" aria-hidden="true">
+                  <img src="images/quiz-preview/quiz-purpose-business.jpg" alt="" width="884" height="439" loading="eager" decoding="async">
+                  <svg viewBox="0 0 104 82" role="img">
+                    <rect width="104" height="82" fill="#172029"/>
+                    <rect x="13" y="25" width="78" height="43" rx="5" fill="#253445"/>
+                    <rect x="18" y="35" width="18" height="14" rx="2" fill="#f7d6a5"/>
+                    <rect x="43" y="35" width="18" height="14" rx="2" fill="#f7d6a5"/>
+                    <rect x="68" y="35" width="18" height="14" rx="2" fill="#f7d6a5"/>
+                    <rect x="43" y="52" width="18" height="16" rx="2" fill="#8c5a3a"/>
+                    <rect x="19" y="17" width="66" height="12" rx="6" fill="#ff7a3d"/>
+                    <path d="M18 30 H86" stroke="#ffb18f" stroke-width="4" stroke-linecap="round"/>
+                    <path d="M22 17 C29 8 75 8 82 17" fill="none" stroke="#f4d097" stroke-width="5" stroke-linecap="round"/>
+                    <path d="M9 68 H95" stroke="#8ccf7a" stroke-width="4" stroke-linecap="round"/>
+                    <circle cx="78" cy="55" r="5" fill="#ffb18f"/>
+                    <rect x="72" y="60" width="12" height="8" rx="3" fill="#ff7a3d"/>
+                  </svg>
+                </span>
+                <span><b class="option-title">Для закладу / виробництва</b><span class="option-text">регулярне завантаження і стабільний процес</span></span>
+              </button>
+              <button class="option has-visual" type="button" data-answer="purpose" data-value="Потрібна консультація" data-model="Classic 2.0">
+                <span class="option-visual option-visual-consult" aria-hidden="true">
+                  <img src="images/quiz-preview/quiz-purpose-consult.jpg" alt="" width="884" height="439" loading="eager" decoding="async">
+                  <svg viewBox="0 0 104 82" role="img">
+                    <rect width="104" height="82" fill="#1b1f2b"/>
+                    <circle cx="51" cy="34" r="16" fill="#f1c5a5"/>
+                    <path d="M34 35 C35 18 67 18 68 35 C61 28 43 28 34 35" fill="#40302c"/>
+                    <path d="M35 67 C39 54 64 54 69 67" fill="#ff7a3d"/>
+                    <path d="M34 38 C26 38 26 50 34 50" fill="none" stroke="#ffb18f" stroke-width="4" stroke-linecap="round"/>
+                    <path d="M68 38 C77 38 77 50 68 50" fill="none" stroke="#ffb18f" stroke-width="4" stroke-linecap="round"/>
+                    <path d="M70 50 C70 60 61 64 52 64" fill="none" stroke="#ffb18f" stroke-width="3" stroke-linecap="round"/>
+                    <circle cx="52" cy="64" r="3" fill="#ffb18f"/>
+                    <path d="M44 40 C47 43 55 43 58 40" fill="none" stroke="#5b3428" stroke-width="2" stroke-linecap="round"/>
+                    <circle cx="23" cy="21" r="8" fill="#2c3d50"/>
+                    <path d="M19 21 H27 M23 17 V25" stroke="#ffb18f" stroke-width="2" stroke-linecap="round"/>
+                    <circle cx="82" cy="25" r="5" fill="#8ccf7a"/>
+                  </svg>
+                </span>
+                <span><b class="option-title">Допоможіть підібрати</b><span class="option-text">менеджер уточнить задачу і підкаже оптимальний варіант</span></span>
+              </button>
+            </div>
+          </div>
+
+          <div class="step" data-step="2">
+            <h2>Що плануєте коптити?</h2>
+            <p class="step-lead">Це допоможе підібрати розмір камери, підвіси, полиці та базову комплектацію.</p>
+            <div class="options">
+              <button class="option has-visual" type="button" data-answer="product" data-value="Рибу">
+                <span class="option-visual option-visual-fish" aria-hidden="true">
+                  <img src="images/quiz-preview/quiz-product-fish.jpg" alt="" width="764" height="507" loading="lazy" decoding="async">
+                </span>
+                <span><b class="option-title">Рибу</b><span class="option-text">ціла риба, філе, холодне або гаряче копчення</span></span>
+              </button>
+              <button class="option has-visual" type="button" data-answer="product" data-value="Ковбаси">
+                <span class="option-visual option-visual-sausage" aria-hidden="true">
+                  <img src="images/quiz-preview/quiz-product-sausage.jpg" alt="" width="764" height="507" loading="lazy" decoding="async">
+                </span>
+                <span><b class="option-title">Ковбаси</b><span class="option-text">партії на підвісах, рівномірне копчення</span></span>
+              </button>
+              <button class="option has-visual" type="button" data-answer="product" data-value="Мʼясо">
+                <span class="option-visual option-visual-meat" aria-hidden="true">
+                  <img src="images/quiz-preview/quiz-product-meat.jpg" alt="" width="764" height="507" loading="lazy" decoding="async">
+                </span>
+                <span><b class="option-title">Мʼясо</b><span class="option-text">ребра, сало, птиця, грудинка, делікатеси</span></span>
+              </button>
+              <button class="option has-visual" type="button" data-answer="product" data-value="Усе: рибу, мʼясо, ковбаси">
+                <span class="option-visual option-visual-all" aria-hidden="true">
+                  <img src="images/quiz-preview/quiz-product-all.jpg" alt="" width="764" height="507" loading="lazy" decoding="async">
+                </span>
+                <span><b class="option-title">Усе: рибу, мʼясо, ковбаси</b><span class="option-text">універсальна комплектація для різних продуктів</span></span>
+              </button>
+            </div>
+          </div>
+
+          <div class="step" data-step="3">
+            <h2>Яке завантаження потрібно?</h2>
+            <p class="step-lead">Не потрібно вгадувати точно. Оберіть найближчий обсяг, який хочете готувати за один цикл.</p>
+            <div class="options">
+              <button class="option" type="button" data-answer="load" data-value="До 10 кг" data-model="Family 2.0">
+                <span class="option-mark">10</span>
+                <span><b class="option-title">До 10 кг</b><span class="option-text">домашні партії, тест продукту, подарунки</span></span>
+              </button>
+              <button class="option" type="button" data-answer="load" data-value="До 30 кг" data-model="Classic 2.0">
+                <span class="option-mark">30</span>
+                <span><b class="option-title">До 30 кг</b><span class="option-text">продажі, замовлення, невеликий бізнес</span></span>
+              </button>
+              <button class="option" type="button" data-answer="load" data-value="До 100 кг" data-model="Big 2.0">
+                <span class="option-mark">100</span>
+                <span><b class="option-title">До 100 кг</b><span class="option-text">заклад, виробництво, регулярні партії</span></span>
+              </button>
+              <button class="option" type="button" data-answer="load" data-value="Порадьте оптимальний обсяг" data-model="Classic 2.0">
+                <span class="option-mark">?</span>
+                <span><b class="option-title">Порадьте оптимальний обсяг</b><span class="option-text">якщо стартуєте і хочете не переплатити</span></span>
+              </button>
+            </div>
+          </div>
+
+          <div class="step" data-step="4">
+            <h2>Куди надіслати рекомендацію?</h2>
+            <p class="step-lead">Залиште контакт, і менеджер надішле модель, комплектацію та актуальну ціну під вашу задачу.</p>
+            <div class="contact-grid">
+              <div class="contact-methods">
+                <button class="method" type="button" data-contact-method="Telegram">
+                  <span class="method-icon method-icon-telegram" aria-hidden="true">
+                    <svg viewBox="0 0 24 24">
+                      <path d="M21.9 4.5 18.8 19c-.2 1-.9 1.2-1.7.7l-4.8-3.5-2.3 2.2c-.3.3-.5.5-1 .5l.4-5 9.1-8.2c.4-.4-.1-.6-.6-.3L6.6 12.5 1.7 11c-1-.3-1-1 .2-1.5L20.6 2.3c.9-.3 1.6.2 1.3 2.2Z"/>
+                    </svg>
+                  </span>
+                  Telegram
+                </button>
+                <button class="method" type="button" data-contact-method="Viber">
+                  <span class="method-icon method-icon-viber" aria-hidden="true">
+                    <svg viewBox="0 0 24 24">
+                      <path d="M12.1 2.2c-5.7 0-8.5 2.8-8.5 8.2 0 2.3.5 4.2 1.6 5.6l-1 4.4 4.6-1.5c1 .3 2.1.4 3.3.4 5.7 0 8.5-2.8 8.5-8.5 0-5.7-2.8-8.6-8.5-8.6Zm4.7 12.4c-.2.6-1.2 1.2-1.7 1.3-.5.1-1.1.2-3-.5-2.5-1-4.1-3.5-4.2-3.7-.1-.1-1-1.3-1-2.5s.6-1.8.9-2.1c.2-.3.5-.4.8-.4h.6c.2 0 .5 0 .7.5.2.6.8 1.9.9 2 0 .2.1.4 0 .6-.1.2-.2.4-.4.5l-.4.5c-.1.1-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.5 1.5.3.1.5.1.7-.1l.8-1c.2-.3.5-.3.8-.2.3.1 1.9.9 2.2 1.1.3.2.5.3.5.4 0 .2 0 .7-.2 1.4Zm-2.2-9c1.4.3 2.4 1.4 2.6 2.8.1.3-.2.6-.5.6-.3 0-.5-.2-.6-.5-.2-1-.8-1.6-1.8-1.8-.3-.1-.5-.3-.4-.6 0-.4.3-.6.7-.5Zm-.3 2.1c.6.1 1 .5 1.1 1.1.1.3-.1.6-.4.6-.3.1-.6-.1-.6-.4 0-.2-.2-.3-.4-.4-.3 0-.5-.3-.5-.6.1-.3.4-.5.8-.3Z"/>
+                    </svg>
+                  </span>
+                  Viber
+                </button>
+                <button class="method" type="button" data-contact-method="Телефон">
+                  <span class="method-icon method-icon-phone" aria-hidden="true">
+                    <svg viewBox="0 0 24 24">
+                      <path d="M6.6 2.8c.5-.3 1.1-.2 1.5.2l2.5 3c.4.5.4 1.1 0 1.6L9.3 9.2c.8 1.7 2.1 3.2 3.5 4.5 1.4 1.4 2.9 2.5 4.7 3.2l1.5-1.4c.5-.4 1.1-.5 1.6-.1l3 2.3c.5.4.6 1 .3 1.5-.5 1-1.3 2-2.4 2.5-1.5.8-5.7-.5-10.3-5.1C7.1 12 5.6 7.7 6.4 6.1c.5-1.1 1.3-2.1 2.2-3.3Z"/>
+                    </svg>
+                  </span>
+                  Телефон
+                </button>
+              </div>
+              <div class="field">
+                <label for="quiz-contact" data-contact-label>Ваш телефон або Telegram</label>
+                <input id="quiz-contact" data-contact-input type="text" autocomplete="off" placeholder="+380... або @username">
+                <div class="helper" data-contact-helper>Оберіть канал звʼязку і залиште контакт.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="result-screen" data-result-screen>
+          <div class="result-card">
+            <strong>Попередня рекомендація</strong>
+            <h2 data-result-title>Classic 2.0</h2>
+            <p data-result-text>Менеджер уточнить деталі і надішле комплектацію, ціну та рекомендації по запуску.</p>
+          </div>
+          <div class="result-summary">
+            <div class="summary-item"><b>Задача</b><span data-summary-purpose></span></div>
+            <div class="summary-item"><b>Продукт</b><span data-summary-product></span></div>
+            <div class="summary-item"><b>Контакт</b><span data-summary-contact></span></div>
+          </div>
+          <button class="btn btn-secondary" type="button" data-restart>Пройти ще раз</button>
+        </div>
+
+        <div class="actions" data-actions>
+          <button class="btn btn-secondary" type="button" data-back>Назад</button>
+          <button class="btn btn-primary" type="button" data-next disabled>Далі</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const quiz = document.querySelector('[data-quiz-preview]');
+    const steps = [...quiz.querySelectorAll('[data-step]')];
+    const options = [...quiz.querySelectorAll('[data-answer]')];
+    const methods = [...quiz.querySelectorAll('[data-contact-method]')];
+    const progressBar = quiz.querySelector('[data-progress-bar]');
+    const progressLabel = quiz.querySelector('[data-progress-label]');
+    const progressNote = quiz.querySelector('[data-progress-note]');
+    const nextButton = quiz.querySelector('[data-next]');
+    const backButton = quiz.querySelector('[data-back]');
+    const actions = quiz.querySelector('[data-actions]');
+    const contactInput = quiz.querySelector('[data-contact-input]');
+    const contactLabel = quiz.querySelector('[data-contact-label]');
+    const contactHelper = quiz.querySelector('[data-contact-helper]');
+    const resultScreen = quiz.querySelector('[data-result-screen]');
+    const restartButton = quiz.querySelector('[data-restart]');
+    const answers = {};
+    let currentStep = 1;
+    let autoAdvanceTimer = null;
+    nextButton.disabled = true;
+
+    function getActiveStep() {
+      return steps.find((step) => Number(step.dataset.step) === currentStep);
+    }
+
+    function updateProgress() {
+      const total = steps.length;
+      const remaining = Math.max(0, total - currentStep);
+      progressBar.style.width = `${(currentStep / total) * 100}%`;
+      progressLabel.textContent = `Крок ${currentStep} з ${total}`;
+      progressNote.textContent = remaining === 1 ? 'залишилось 1 питання' : `залишилось ${remaining} питання`;
+    }
+
+    function hasValidContact() {
+      const value = contactInput.value.trim();
+      if (!answers.contactMethod || value.length < 3) return false;
+      return true;
+    }
+
+    function updateControls() {
+      backButton.hidden = currentStep === 1;
+      nextButton.textContent = currentStep === steps.length ? 'Отримати рекомендацію' : 'Далі';
+
+      if (currentStep === steps.length) {
+        nextButton.disabled = !hasValidContact();
+        return;
+      }
+
+      const activeStep = getActiveStep();
+      const hasAnswer = Boolean(activeStep.querySelector('.option.is-selected'));
+      nextButton.disabled = !hasAnswer;
+    }
+
+    function showStep(stepNumber) {
+      currentStep = Math.min(Math.max(1, stepNumber), steps.length);
+      steps.forEach((step) => step.classList.toggle('is-active', Number(step.dataset.step) === currentStep));
+      updateProgress();
+      updateControls();
+    }
+
+    function chooseOption(option) {
+      const activeStep = option.closest('[data-step]');
+      activeStep.querySelectorAll('.option').forEach((item) => item.classList.remove('is-selected'));
+      option.classList.add('is-selected');
+      answers[option.dataset.answer] = option.dataset.value;
+      if (option.dataset.model) answers.model = option.dataset.model;
+      updateControls();
+
+      window.clearTimeout(autoAdvanceTimer);
+      autoAdvanceTimer = window.setTimeout(() => {
+        if (currentStep < steps.length) showStep(currentStep + 1);
+      }, 420);
+    }
+
+    function chooseMethod(method) {
+      methods.forEach((item) => item.classList.remove('is-selected'));
+      method.classList.add('is-selected');
+      answers.contactMethod = method.dataset.contactMethod;
+      contactInput.placeholder = answers.contactMethod === 'Telegram' ? '+380... або @username' : '+380...';
+      if (answers.contactMethod === 'Telegram') {
+        contactLabel.textContent = 'Ваш телефон або Telegram';
+        contactHelper.textContent = 'Вкажіть телефон або Telegram-нік, щоб менеджер міг написати.';
+      } else if (answers.contactMethod === 'Viber') {
+        contactLabel.textContent = 'Телефон, на якому є Viber';
+        contactHelper.textContent = 'Вкажіть номер телефону, привʼязаний до Viber.';
+      } else {
+        contactLabel.textContent = 'Ваш номер телефону для звінка';
+        contactHelper.textContent = 'Вкажіть номер телефону, щоб менеджер міг звʼязатися.';
+      }
+      updateControls();
+      contactInput.focus();
+    }
+
+    function getRecommendation() {
+      if (answers.load === 'До 100 кг' || answers.purpose === 'Для закладу або виробництва') return 'Big 2.0';
+      if (answers.load === 'До 10 кг' && answers.purpose === 'Для дому') return 'Family 2.0';
+      return answers.model || 'Classic 2.0';
+    }
+
+    function showResult() {
+      const recommendation = getRecommendation();
+      quiz.querySelector('[data-steps]').hidden = true;
+      actions.hidden = true;
+      resultScreen.classList.add('is-visible');
+      quiz.querySelector('[data-result-title]').textContent = recommendation;
+      quiz.querySelector('[data-result-text]').textContent = `Під вашу задачу попередньо підходить ${recommendation}. Менеджер уточнить продукти, обсяг і надішле комплектацію з актуальною ціною.`;
+      quiz.querySelector('[data-summary-purpose]').textContent = answers.purpose || 'Потрібна консультація';
+      quiz.querySelector('[data-summary-product]').textContent = answers.product || 'Універсальна комплектація';
+      quiz.querySelector('[data-summary-contact]').textContent = `${answers.contactMethod}: ${contactInput.value.trim()}`;
+      progressBar.style.width = '100%';
+      progressLabel.textContent = 'Готово';
+      progressNote.textContent = 'рекомендація сформована';
+    }
+
+    options.forEach((option) => option.addEventListener('click', () => chooseOption(option)));
+    methods.forEach((method) => method.addEventListener('click', () => chooseMethod(method)));
+    contactInput.addEventListener('input', updateControls);
+
+    nextButton.addEventListener('click', () => {
+      if (nextButton.disabled) return;
+      if (currentStep === steps.length) {
+        answers.contact = contactInput.value.trim();
+        showResult();
+      } else {
+        showStep(currentStep + 1);
+      }
+    });
+
+    backButton.addEventListener('click', () => {
+      window.clearTimeout(autoAdvanceTimer);
+      showStep(currentStep - 1);
+    });
+
+    restartButton.addEventListener('click', () => {
+      Object.keys(answers).forEach((key) => delete answers[key]);
+      options.forEach((item) => item.classList.remove('is-selected'));
+      methods.forEach((item) => item.classList.remove('is-selected'));
+      contactInput.value = '';
+      quiz.querySelector('[data-steps]').hidden = false;
+      actions.hidden = false;
+      resultScreen.classList.remove('is-visible');
+      showStep(1);
+    });
+
+    showStep(1);
+  </script>
+</body>
+</html>
