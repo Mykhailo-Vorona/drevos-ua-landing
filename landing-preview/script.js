@@ -193,13 +193,22 @@ const tiktokLink = document.querySelector(".tiktok-link");
 let activeTikTokIframe = null;
 
 function buildTikTokPlayerUrl(videoId) {
+  // Detect mobile devices — mobile browsers (iOS Safari, Android Chrome)
+  // block autoplay WITH SOUND. So on mobile we disable autoplay
+  // and let the user press Play (user gesture allows sound).
+  // On desktop we keep autoplay because most desktop browsers allow it.
+  const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
   const params = new URLSearchParams({
-    autoplay: "1",
+    autoplay: isMobile ? "0" : "1",
     muted: "0",
     controls: "1",
     volume_control: "1",
     fullscreen_button: "1",
     rel: "0",
+    progress_bar: "1",
+    closed_caption: "1",
+    description: "1",
   });
 
   return `https://www.tiktok.com/player/v1/${videoId}?${params.toString()}`;
@@ -241,7 +250,7 @@ function openTikTokModal(videoId, profile) {
   iframe.width = "100%";
   iframe.height = "100%";
   iframe.setAttribute("frameborder", "0");
-  iframe.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen";
+  iframe.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen; clipboard-write; gyroscope; accelerometer";
   iframe.setAttribute("allowfullscreen", "");
   iframe.setAttribute("loading", "lazy");
   iframe.style.borderRadius = "8px";
@@ -255,10 +264,21 @@ function openTikTokModal(videoId, profile) {
   // The click that opens the modal counts as user intent, so ask the player
   // to start with sound as soon as possible and again after it is ready.
   requestTikTokFullscreen();
-  sendTikTokPlayerCommand("play");
-  sendTikTokPlayerCommand("unMute");
-  iframe.addEventListener("load", () => {
+
+  // Mobile detection — on mobile we DON'T programmatically call play,
+  // because browsers treat programmatic play as non-user-gesture and force mute.
+  // User must press play themselves inside the TikTok player → sound works.
+  const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+  if (!isMobile) {
     sendTikTokPlayerCommand("play");
+  }
+  sendTikTokPlayerCommand("unMute");
+
+  iframe.addEventListener("load", () => {
+    if (!isMobile) {
+      sendTikTokPlayerCommand("play");
+    }
     sendTikTokPlayerCommand("unMute");
   });
 
@@ -286,7 +306,12 @@ window.addEventListener("message", (event) => {
   if (!event.data?.["x-tiktok-player"]) return;
 
   if (event.data.type === "onPlayerReady") {
-    sendTikTokPlayerCommand("play");
+    const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    // On mobile: don't auto-play (browser forces mute) — let user press play.
+    // On desktop: auto-play with sound.
+    if (!isMobile) {
+      sendTikTokPlayerCommand("play");
+    }
     sendTikTokPlayerCommand("unMute");
   }
 });
